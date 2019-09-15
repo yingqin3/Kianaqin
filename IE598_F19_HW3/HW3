@@ -1,0 +1,59 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import pylab
+import seaborn as sns
+import scipy.stats as stats
+df=pd.read_csv('HY_Universe_corporate bond.csv')
+df.shape
+print('number of rows and columns are:',x)
+print(df.info())
+
+df.describe()
+
+print('choose some important indexes to draw QQ-plot: Coupon、Issued Amount、Maturity At Issue months、n_trades')
+stats.probplot(df['Coupon'], dist='norm', plot=pylab)
+pylab.show()
+stats.probplot(df['Issued Amount'], dist='norm', plot=pylab)
+pylab.show()
+stats.probplot(df['Maturity At Issue months'], dist='norm', plot=pylab)
+pylab.show()
+stats.probplot(df['n_trades'], dist='norm', plot=pylab)
+pylab.show()
+
+print('draw ECDF with Maturity At Issue months and LiquidityScore :  ')
+x=np.sort(df['Maturity At Issue months'])
+y=np.arange(1,len(x)+1)/len(x)
+_=plt.plot(x,y,marker='.',linestyle='none')
+_=plt.xlabel('Maturity At Issue months')
+_=plt.ylabel('ECDF')
+plt.show()
+a=np.sort(df['LiquidityScore'])
+b=np.arange(1,len(a)+1)/len(a)
+_=plt.plot(a,b,marker='.',linestyle='none')
+_=plt.xlabel('LiquidityScore')
+_=plt.ylabel('ECDF')
+plt.show()
+
+print('draw histogram with Coupon:')
+bin_edges=[0,3,6,9,12,15]
+_=plt.hist(df['Coupon'],bins=bin_edges)
+plt.show()
+
+print('Covariance:')
+cov=np.cov(df['LiquidityScore'],df['volume_trades'])
+print(cov)
+print('Pearson correlation coefficient:')
+coef=np.corrcoef(df['LiquidityScore'],df['volume_trades'])
+print(coef[0,1])
+
+print('Heatplot:')
+co=df.corr()
+plt.pcolor(co)
+
+print('Cross plotting pairs of Issued Amount and Maturity At Issue months:')
+plt.scatter(df['Issued Amount'],df['Maturity At Issue months'])
+
+print("My name is Ying Qin ")
+print("My NetID is: yingqin3 ")
+print("I hereby certify that I have read the University policy on Academic Integrity and that I am not in violation.")
