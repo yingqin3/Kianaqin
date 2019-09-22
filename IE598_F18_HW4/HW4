@@ -1,0 +1,147 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+import pylab
+import seaborn as sns
+import scipy.stats as stats
+df=pd.read_csv('housing2.csv')
+print('number of rows and columns are:',df.shape)
+print(df.info())
+df.describe()
+
+print('choose some important indexes to draw QQ-plot: MEDV、AGE')
+stats.probplot(df['MEDV'], dist='norm', plot=pylab)
+pylab.show()
+stats.probplot(df['AGE'], dist='norm', plot=pylab)
+pylab.show()
+
+print('draw ECDF with MEDV and CRIM :  ')
+x=np.sort(df['MEDV'])
+y=np.arange(1,len(x)+1)/len(x)
+_=plt.plot(x,y,marker='.',linestyle='none')
+_=plt.xlabel('MEDV')
+_=plt.ylabel('ECDF')
+plt.show()
+a=np.sort(df['CRIM'])
+b=np.arange(1,len(a)+1)/len(a)
+_=plt.plot(a,b,marker='.',linestyle='none')
+_=plt.xlabel('CRIM')
+_=plt.ylabel('ECDF')
+plt.show()
+
+print('draw histogram with MEDV:')
+_=plt.hist(df['MEDV'])
+plt.show()
+
+print('Covariance of CRIM and MEDV:')
+cov=np.cov(df['CRIM'],df['MEDV'])
+print(cov)
+print('Pearson correlation coefficient of CRIM and MEDV:')
+coef=np.corrcoef(df['CRIM'],df['MEDV'])
+print(coef[0,1])
+
+print('Heatplot:')
+co=df.corr()
+plt.pcolor(co)
+
+cols=['LSTAT','INDUS','NOX','RM','MEDV']
+sns.pairplot(df[cols], size=2.5)
+plt.tight_layout()
+plt.show()
+
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
+X=df.drop('MEDV',axis=1).values
+y=df['MEDV'].values
+X_train, X_test, y_train, y_test=train_test_split(X,y,test_size=0.2, random_state=42)
+reg=LinearRegression()
+reg.fit(X_train,y_train)
+y_train_pred=reg.predict(X_train)
+y_pred=reg.predict(X_test)
+print("R^2: {}".format(reg.score(X_test, y_test)))
+mse = mean_squared_error(y_test,y_pred)
+print("Mean Squared Error: {}".format(mse))
+print('Coefficients: \n', reg.coef_)
+print('y_intercept:\n',reg.intercept_)
+plt.scatter(y_train_pred, y_train_pred - y_train,c='steelblue', marker='o', edgecolor='white',label='Training data')
+plt.scatter(y_pred, y_pred - y_test,c='limegreen', marker='s', edgecolor='white',label='Test data')
+plt.xlabel('Predicted values')
+plt.ylabel('Residuals')
+plt.legend(loc='upper left')
+plt.hlines(y=0, xmin=-10, xmax=50, color='black', lw=2)
+plt.xlim([-10, 50])
+plt.show()
+
+alpha_space = np.logspace(-4, 0, 50)
+from sklearn.linear_model import Ridge
+ridge=Ridge(normalize=True)
+# Compute scores over range of alphas
+list=[]
+for alpha in alpha_space:
+
+    # Specify the alpha value to use: ridge.alpha
+    ridge.alpha = alpha
+    ridge.fit(X_train,y_train)
+    
+    ridge_pred=ridge.predict(X_test)
+    R1=ridge.score(X_test, y_test)
+    list.append([R1,alpha])
+a=max(list)
+a = ['{:.4f}'.format(i) for i in a]
+print('largest R^2 and best performance alpha:', a)
+mse = mean_squared_error(y_test,y_pred)
+print("Mean Squared Error: {}".format(mse))
+[b,c]=max(list)
+ridge.alpha = c
+ridge.fit(X_train,y_train)
+ridge_train_pred=ridge.predict(X_train)
+ridge_pred=ridge.predict(X_test)
+print('Coefficients: \n' , ridge.coef_)
+print('y_intercept:\n',ridge.intercept_)
+plt.scatter(ridge_train_pred, ridge_train_pred - y_train,c='steelblue', marker='o', edgecolor='white',label='Training data')
+plt.scatter(ridge_pred, ridge_pred - y_test,c='limegreen', marker='s', edgecolor='white',label='Test data')
+plt.xlabel('Predicted values')
+plt.ylabel('Residuals')
+plt.legend(loc='upper left')
+plt.hlines(y=0, xmin=-10, xmax=50, color='black', lw=2)
+plt.xlim([-10, 50])
+plt.show()
+
+from sklearn.linear_model import Lasso
+lasso=Lasso(normalize=True)
+# Compute scores over range of alphas
+list=[]
+for alpha in alpha_space:
+
+    # Specify the alpha value to use: ridge.alpha
+    lasso.alpha = alpha
+    lasso.fit(X_train,y_train)
+   
+    lasso_pred=lasso.predict(X_test)
+    R2=lasso.score(X_test, y_test)
+    list.append([R2,alpha])
+d=max(list)
+d = ['{:.4f}'.format(i) for i in d]
+print('largest R^2 and best performance alpha:', d)
+mse = mean_squared_error(y_test,y_pred)
+print("Mean Squared Error: {}".format(mse))
+[e,f]=max(list)
+lasso.alpha = f
+lasso.fit(X_train,y_train)
+lasso_train_pred=lasso.predict(X_train)
+lasso_pred=lasso.predict(X_test)
+print('Coefficients: \n' , lasso.coef_)
+print('y_intercept:\n',lasso.intercept_)
+plt.scatter(lasso_train_pred, lasso_train_pred - y_train,c='steelblue', marker='o', edgecolor='white',label='Training data')
+plt.scatter(lasso_pred, lasso_pred - y_test,c='limegreen', marker='s', edgecolor='white',label='Test data')
+plt.xlabel('Predicted values')
+plt.ylabel('Residuals')
+plt.legend(loc='upper left')
+plt.hlines(y=0, xmin=-10, xmax=50, color='black', lw=2)
+plt.xlim([-10, 50])
+plt.show()
+
+print("My name is Ying Qin ")
+print("My NetID is: yingqin3 ")
+print("I hereby certify that I have read the University policy on Academic Integrity and that I am not in violation.")
