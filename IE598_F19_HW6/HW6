@@ -1,0 +1,61 @@
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
+import pandas as pd
+import numpy as np
+import time
+df=pd.read_csv('ccdefault.csv')
+X=df.drop('DEFAULT',axis=1).values
+y=df['DEFAULT'].values
+tree=DecisionTreeClassifier(max_depth=4)
+accscore1=list()
+accscore2=list()
+cvscore=list()
+start = time.time()
+for i in range(10):
+    X_train, X_test, y_train, y_test=train_test_split(X,y,test_size=0.1, random_state=i+1)
+    tree.fit(X_train, y_train)
+    y_train_pred=tree.predict(X_train)
+    y_pred=tree.predict(X_test)
+    acc_train=accuracy_score(y_train, y_train_pred)
+    acc_test=accuracy_score(y_test, y_pred)
+    accscore1.append(acc_train)
+    accscore2.append(acc_test)
+end = time.time()
+print('runtime: %.8f s' % (end - start))
+mean1=sum(accscore1)/10
+mean2=sum(accscore2)/10
+
+start = time.time()
+X_train, X_test, y_train, y_test=train_test_split(X,y,test_size=0.1,random_state=42)
+tree.fit(X_train, y_train)
+y_pred=tree.predict(X_test)
+cv=cross_val_score(tree,X_test,y_test, cv=10)
+end = time.time()
+print('runtime: %.8f s' % (end - start))
+
+pip install prettytable
+from prettytable import PrettyTable
+table1 = PrettyTable(['Random State(train)', 'Accuracy'])
+for i in range(10):
+    table1.add_row([i + 1, accscore1[i]])
+table1.add_row(['Total Mean', mean1])
+table1.add_row(['Total Standard Deviation', np.std(accscore1)])
+print(table1)
+table2 = PrettyTable(['Random State(test)', 'Accuracy'])
+for i in range(10):
+    table2.add_row([i + 1, accscore2[i]])
+table2.add_row(['Total Mean', mean2])
+table2.add_row(['Total Standard Deviation', np.std(accscore2)])
+print(table2)
+table3 = PrettyTable(['CV fold', 'scores'])
+for i in range(10):
+    table3.add_row([i + 1, cv[i]])
+table3.add_row(['Total Mean', np.mean(cv)])
+table3.add_row(['Total Standard Deviation', np.std(cv)])
+print(table3)
+
+print('My name is Ying Qin')
+print('My NetID is yingqin3')
+print('I hereby certify that I have read the University policy on Academic Integrity and that I am not in violation.')
