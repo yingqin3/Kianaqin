@@ -1,0 +1,33 @@
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
+import pandas as pd
+import numpy as np
+import time
+df=pd.read_csv('ccdefault.csv')
+X=df.drop('DEFAULT',axis=1)
+y=df['DEFAULT']
+X_train, X_test, y_train, y_test=train_test_split(X,y,test_size=0.1, random_state=1)
+estimators=[25,50,75,100]
+
+for i in estimators:
+    start = time.time()
+    rf=RandomForestRegressor(n_estimators=i,random_state=1)
+    rf.fit(X_train, y_train)
+    acc_train=rf.score(X_train, y_train)
+    cv=cross_val_score(rf,X_test,y_test, cv=10)
+    end = time.time()
+    print('accuracy: (estimators =',i,')', acc_train)
+    print('cv score:', np.mean(cv))
+    print('runtime: %.8f s' % (end - start))
+    
+import matplotlib.pyplot as plt
+rf=RandomForestRegressor(n_estimators=10,random_state=1)
+rf.fit(X_train, y_train)
+df_xtrain=pd.DataFrame(X_train)
+importances_rf=pd.Series(data=rf.feature_importances_, index=df_xtrain.columns)
+sorted_importances_rf=importances_rf.sort_values()
+sorted_importances_rf.plot(kind='barh',color='lightgreen')
+_ = plt.title('Features Importances')
+plt.show()
